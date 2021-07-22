@@ -32,7 +32,7 @@ unsigned char* Append(unsigned char newCh, unsigned char *buff, int size)
     return t;
 }
 
-int CheckEnd(char *Bytes)
+int CheckEnd(unsigned char *Bytes)
 {
     int ret = 0;
     if((Bytes[-4] == 0) && (Bytes[-3] == 0) && (Bytes[-2] == 0) && (Bytes[-1] == 1) && (Bytes[0] == -1)) ret = 1;
