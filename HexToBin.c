@@ -35,7 +35,7 @@ unsigned char* Append(unsigned char newCh, unsigned char *buff, int size)
 int CheckEnd(unsigned char *Bytes)
 {
     int ret = 0;
-    if((Bytes[-4] == 0) && (Bytes[-3] == 0) && (Bytes[-2] == 0) && (Bytes[-1] == 1) && (Bytes[0] == -1)) ret = 1;
+    if((Bytes[-4] == 0) && (Bytes[-3] == 0) && (Bytes[-2] == 0) && (Bytes[-1] == 1) && (Bytes[0] == 0xFF)) ret = 1;
     //printf("Checkend: %x %x %x %x %x \n", Bytes[-4],Bytes[-3],Bytes[-2],Bytes[-1],Bytes[0]);
     return ret;
 }
