@@ -46,7 +46,7 @@ int CheckBin(unsigned char *Bytes, int Length)
     dtHexLine line;
     int i = 0;
     unsigned char Checksum = 0;
-    while(i < Length && Checksum ==0)
+    while((i < Length) && (Checksum == 0))
 	{
 		Checksum = 0;
 		line.ByteCount = Bytes[i++];
@@ -63,21 +63,23 @@ int CheckBin(unsigned char *Bytes, int Length)
 		Checksum += line.Type;
 		for(int j=0;j<line.ByteCount; j++) Checksum += (unsigned char)line.Data[j];
 		Checksum += line.Checksum;
-		printf("Checksum: %x\n", Checksum);
+		//printf("Checksum: %x\n", Checksum);
 
-		printf("%x %x %x ", line.ByteCount, line.Address, line.Type);
-		for(int j=0;j<line.ByteCount; j++) printf("%x ", (unsigned char)(line.Data[j]));
-		printf("%x\n", (unsigned char)line.Checksum);
+		//printf("%x %x %x ", line.ByteCount, line.Address, line.Type);
+		//for(int j=0;j<line.ByteCount; j++) printf("%x ", (unsigned char)(line.Data[j]));
+		//printf("%x\n", (unsigned char)line.Checksum);
 	}
+    if(Checksum != 0) ret = 0xFF;
     return ret;
 }
 
 int main(int argc, char **argv)
 {
+	int ret = 0;
     if(argc == 1)
     {
         printf("No input file\n");
-        return -1;
+        ret = -1;
     }
     else
     {
@@ -85,7 +87,7 @@ int main(int argc, char **argv)
         if(HexFile == 0)
         {
             printf("Cannot open the HEX file\n}");
-            return -2;
+            ret = -2;
         }
         else
         {
@@ -136,20 +138,26 @@ int main(int argc, char **argv)
                     printf("%d\n", looper);
                 }
 
-                printf("BinFile: ");
-                for(int looper = 0; looper < 30; looper ++) printf("%x ", (unsigned char)BinFile[looper]&0xff);
-                printf("\n");
+                if(CheckBin(BinFile, BinFileCntr) == 0)
+                {
+                	printf("Checksum is correct!\n");
 
-                CheckBin(BinFile, BinFileCntr);
-                printf("Length: %d\n", BinFileCntr);
+                    printf("Binary data size: %d\n", BinFileCntr);
+                }
+                else
+                {
+                	printf("Error while checksum checking!\n");
+                	ret = -3;
+                }
             }
             else
             {
-                printf("Error while reading the file\n");
+            	printf("Error while reading the file\n");
+            	ret = -4;
             }
             free(HexFileBytes);
             fclose(HexFile);
         }
     }
-    return 0;
+    return ret;
 }
