@@ -40,34 +40,36 @@ int CheckEnd(char *Bytes)
     return ret;
 }
 
-int CheckBin(char *Bytes, int Length)
+int CheckBin(unsigned char *Bytes, int Length)
 {
+	int ret = 0;
     dtHexLine line;
     int i = 0;
     unsigned char Checksum = 0;
     while(i < Length && Checksum ==0)
-{
-    Checksum = 0;
-    line.ByteCount = Bytes[i++];
-    line.Address = Bytes[i++]<<8;
-    line.Address |= Bytes[i++];
-    line.Type = Bytes[i++];
-    line.Data = &Bytes[i];
-    i+=line.ByteCount;
-    line.Checksum = Bytes[i++];
-    
-    Checksum += line.ByteCount;
-    Checksum += line.Address>>8;
-    Checksum += line.Address&0xFF;
-    Checksum += line.Type;
-    for(int j=0;j<line.ByteCount; j++) Checksum += (unsigned char)line.Data[j];
-    Checksum += line.Checksum;
-    printf("Checksum: %x\n", Checksum);
+	{
+		Checksum = 0;
+		line.ByteCount = Bytes[i++];
+		line.Address = Bytes[i++]<<8;
+		line.Address |= Bytes[i++];
+		line.Type = Bytes[i++];
+		line.Data = &Bytes[i];
+		i+=line.ByteCount;
+		line.Checksum = Bytes[i++];
 
-    printf("%x %x %x ", line.ByteCount, line.Address, line.Type);
-    for(int j=0;j<line.ByteCount; j++) printf("%x ", (unsigned char)(line.Data[j]));
-    printf("%x\n", (unsigned char)line.Checksum);
-}
+		Checksum += line.ByteCount;
+		Checksum += line.Address>>8;
+		Checksum += line.Address&0xFF;
+		Checksum += line.Type;
+		for(int j=0;j<line.ByteCount; j++) Checksum += (unsigned char)line.Data[j];
+		Checksum += line.Checksum;
+		printf("Checksum: %x\n", Checksum);
+
+		printf("%x %x %x ", line.ByteCount, line.Address, line.Type);
+		for(int j=0;j<line.ByteCount; j++) printf("%x ", (unsigned char)(line.Data[j]));
+		printf("%x\n", (unsigned char)line.Checksum);
+	}
+    return ret;
 }
 
 int main(int argc, char **argv)
