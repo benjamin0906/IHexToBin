@@ -11,67 +11,10 @@ typedef struct
     unsigned char Checksum;
 } dtHexLine;
 
-unsigned char CharToHex(char ch)
-{
-    unsigned char ret = 0;
-    if((ch >= '0') && (ch <= '9')) ret = ch -'0';
-    if((ch >= 'A') && (ch <= 'F')) ret = ch -'7';
-    if((ch >= 'a') && (ch <= 'f')) ret = ch -'W';
-    return ret;
-}
-
-unsigned char* Append(unsigned char newCh, unsigned char *buff, int size)
-{
-    unsigned char* t = (unsigned char*) calloc(size+1, sizeof(unsigned char));
-    if(buff != 0)
-    {
-        memcpy(t,buff, size);
-        free(buff);
-    }
-    t[size] = newCh;
-    return t;
-}
-
-int CheckEnd(unsigned char *Bytes)
-{
-    int ret = 0;
-    if((Bytes[-4] == 0) && (Bytes[-3] == 0) && (Bytes[-2] == 0) && (Bytes[-1] == 1) && (Bytes[0] == 0xFF)) ret = 1;
-    //printf("Checkend: %x %x %x %x %x \n", Bytes[-4],Bytes[-3],Bytes[-2],Bytes[-1],Bytes[0]);
-    return ret;
-}
-
-int CheckBin(unsigned char *Bytes, int Length)
-{
-	int ret = 0;
-    dtHexLine line;
-    int i = 0;
-    unsigned char Checksum = 0;
-    while((i < Length) && (Checksum == 0))
-	{
-		Checksum = 0;
-		line.ByteCount = Bytes[i++];
-		line.Address = Bytes[i++]<<8;
-		line.Address |= Bytes[i++];
-		line.Type = Bytes[i++];
-		line.Data = &Bytes[i];
-		i+=line.ByteCount;
-		line.Checksum = Bytes[i++];
-
-		Checksum += line.ByteCount;
-		Checksum += line.Address>>8;
-		Checksum += line.Address&0xFF;
-		Checksum += line.Type;
-		for(int j=0;j<line.ByteCount; j++) Checksum += (unsigned char)line.Data[j];
-		Checksum += line.Checksum;
-		//printf("Checksum: %x\n", Checksum);
-
-		//printf("%x %x %x ", line.ByteCount, line.Address, line.Type);
-		//for(int j=0;j<line.ByteCount; j++) printf("%x ", (unsigned char)(line.Data[j]));
-		//printf("%x\n", (unsigned char)line.Checksum);
-	}
-    if(Checksum != 0) ret = 0xFF;
-    return ret;
-}
+unsigned char CharToHex(char ch);
+unsigned char* Append(unsigned char newCh, unsigned char *buff, int size);
+int CheckHexEnd(unsigned char *Bytes);
+int CheckBin(unsigned char *Bytes, int Length);
 
 int main(int argc, char **argv)
 {
@@ -133,8 +76,9 @@ int main(int argc, char **argv)
                         }
                         looper++;
                     }
+
                     /* Check if the previous line was EOF */
-                    if(BinFileCntr >= 5) Eof = CheckEnd(&BinFile[BinFileCntr-1]);
+                    if(BinFileCntr >= 5) Eof = CheckHexEnd(&BinFile[BinFileCntr-1]);
                     printf("%d\n", looper);
                 }
 
@@ -160,4 +104,65 @@ int main(int argc, char **argv)
         }
     }
     return ret;
+}
+
+int CheckBin(unsigned char *Bytes, int Length)
+{
+	int ret = 0;
+    dtHexLine line;
+    int i = 0;
+    unsigned char Checksum = 0;
+    while((i < Length) && (Checksum == 0))
+	{
+		Checksum = 0;
+		line.ByteCount = Bytes[i++];
+		line.Address = Bytes[i++]<<8;
+		line.Address |= Bytes[i++];
+		line.Type = Bytes[i++];
+		line.Data = &Bytes[i];
+		i+=line.ByteCount;
+		line.Checksum = Bytes[i++];
+
+		Checksum += line.ByteCount;
+		Checksum += line.Address>>8;
+		Checksum += line.Address&0xFF;
+		Checksum += line.Type;
+		for(int j=0;j<line.ByteCount; j++) Checksum += (unsigned char)line.Data[j];
+		Checksum += line.Checksum;
+		//printf("Checksum: %x\n", Checksum);
+
+		//printf("%x %x %x ", line.ByteCount, line.Address, line.Type);
+		//for(int j=0;j<line.ByteCount; j++) printf("%x ", (unsigned char)(line.Data[j]));
+		//printf("%x\n", (unsigned char)line.Checksum);
+	}
+    if(Checksum != 0) ret = 0xFF;
+    return ret;
+}
+
+int CheckHexEnd(unsigned char *Bytes)
+{
+    int ret = 0;
+    if((Bytes[-4] == 0) && (Bytes[-3] == 0) && (Bytes[-2] == 0) && (Bytes[-1] == 1) && (Bytes[0] == 0xFF)) ret = 1;
+    return ret;
+}
+
+unsigned char CharToHex(char ch)
+{
+    unsigned char ret = 0;
+    if((ch >= '0') && (ch <= '9')) ret = ch -'0';
+    if((ch >= 'A') && (ch <= 'F')) ret = ch -'7';
+    if((ch >= 'a') && (ch <= 'f')) ret = ch -'W';
+    return ret;
+}
+
+unsigned char* Append(unsigned char newCh, unsigned char *buff, int size)
+{
+    unsigned char* t = (unsigned char*) calloc(size+1, sizeof(unsigned char));
+    if(buff != 0)
+    {
+        memcpy(t,buff, size);
+        free(buff);
+    }
+    t[size] = newCh;
+    return t;
 }
