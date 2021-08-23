@@ -87,6 +87,9 @@ int main(int argc, char **argv)
                 	printf("Checksum is correct!\n");
 
                     printf("Binary data size: %d\n", BinFileCntr);
+
+                    FILE *BinFileFile=fopen("File.bin", "wb");
+                    fwrite(BinFile, sizeof(char), BinFileCntr, BinFileFile);
                 }
                 else
                 {
